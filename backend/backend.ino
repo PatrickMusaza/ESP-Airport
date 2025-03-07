@@ -21,8 +21,7 @@ WebServer server(80);
 #define RELAY_PIN 26
 #define FAN_PIN 27
 
-void setup()
-{
+void setup() {
   // Initialize GPIO pins
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
@@ -32,24 +31,24 @@ void setup()
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
 
   // Serve the main page
-  server.on("/", HTTP_GET, []()
-            { server.send(200, "text/html", PAGE_MAIN); });
+  server.on("/", HTTP_GET, []() {
+    server.send(200, "text/html", PAGE_MAIN);
+  });
 
   // Handle control requests for light and fan
-  server.on("/control", HTTP_GET, []()
-            {
+  server.on("/control", HTTP_GET, []() {
     String device = server.arg("device");
     String state = server.arg("state");
-      //Control Logic
-    server.send(200, "text/html", PAGE_CONTROL); });
+    //Control Logic
+    server.send(200, "text/html", PAGE_CONTROL);
+  });
 
   // Start the server
   server.begin();
@@ -59,8 +58,7 @@ void setup()
   Serial.println(WiFi.localIP());
 }
 
-void loop()
-{
+void loop() {
   // Handle client requests
   server.handleClient();
 }

@@ -11,8 +11,8 @@ const char PAGE_CONTROL[] PROGMEM = R"=====(
         font-family: MetricHPE, sans-serif;
         margin: 0;
         padding: 0;
-        background: linear-gradient(15deg, #083a6c, #330270);
-        color: #fff;
+        background: linear-gradient(15deg, rgb(2, 21, 67),#0a192f);
+        color: rgba(204, 214, 246, 1);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -372,5 +372,6 @@ const char PAGE_CONTROL[] PROGMEM = R"=====(
     </script>
   </body>
 </html>
+
 
 )=====";
