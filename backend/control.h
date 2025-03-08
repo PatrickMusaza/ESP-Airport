@@ -1,5 +1,4 @@
 const char PAGE_CONTROL[] PROGMEM = R"=====(
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -331,18 +330,35 @@ const char PAGE_CONTROL[] PROGMEM = R"=====(
     <script>
       // Function to toggle lights
       function toggleLight(lightNumber) {
-        const lightCard = document.getElementById(`light-card-${lightNumber}`);
-        const switchInput = document.getElementById(`switch${lightNumber}`);
-        const status = lightCard.querySelector(".light-status");
+  const lightCard = document.getElementById(`light-card-${lightNumber}`);
+  const switchInput = document.getElementById(`switch${lightNumber}`);
+  const status = lightCard.querySelector(".light-status");
 
-        if (switchInput.checked) {
-          lightCard.classList.add("on");
-          status.textContent = "Status: On";
-        } else {
-          lightCard.classList.remove("on");
-          status.textContent = "Status: Off";
-        }
+  // Determine the new state
+  const isOn = switchInput.checked;
+  const state = isOn ? "on" : "off";
+
+  // Send request to the server to toggle the relay
+  fetch(`/control?device=relay${lightNumber}&state=${state}`)
+    .then((response) => {
+      if (response.ok) {
+        // Update UI
+        lightCard.classList.toggle("on", isOn);
+        status.textContent = `Status: ${isOn ? "On" : "Off"}`;
+        // Explicitly update the switch knob position
+        switchInput.checked = isOn;
+      } else {
+        console.error("Failed to toggle relay");
+        // Revert the switch if the request fails
+        switchInput.checked = !isOn;
       }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      // Revert the switch if there's an error
+      switchInput.checked = !isOn;
+    });
+}
 
       // Function to expand preview
       function expandPreview(lightNumber) {
@@ -372,6 +388,4 @@ const char PAGE_CONTROL[] PROGMEM = R"=====(
     </script>
   </body>
 </html>
-
-
 )=====";

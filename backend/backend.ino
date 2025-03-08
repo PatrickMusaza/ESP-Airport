@@ -1,54 +1,133 @@
 #include <WiFi.h>
 #include <WebServer.h>
+// #include <SPI.h>        // Commented out SD card library
+// #include <SD.h>         // Commented out SD card library
 #include "index.h"
 #include "control.h"
 
 // Network credentials
-
-
 const char *ssid = "HLT B";
 const char *password = "wedishuk113$";
-
-/*
-const char *ssid = "Patrick";
-const char *password = "patrick@123";
-*/
 
 // Web server instance
 WebServer server(80);
 
-// GPIO pins
-#define RELAY_PIN 26
-#define FAN_PIN 27
+// SD Card pins (commented out)
+// #define SD_CS 5       // GPIO5 for SD card CS
+// #define SD_SCK 18     // GPIO18 for SD card SCK
+// #define SD_MOSI 23    // GPIO23 for SD card MOSI
+// #define SD_MISO 19    // GPIO19 for SD card MISO
 
-void setup() {
-  // Initialize GPIO pins
-  pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, LOW);
+// Relay pins
+#define RELAY_1 13 // GPIO13 for Relay 1
+#define RELAY_2 12 // GPIO12 for Relay 2
+#define RELAY_3 14 // GPIO14 for Relay 3
+#define RELAY_4 27 // GPIO27 for Relay 4
+#define RELAY_5 26 // GPIO26 for Relay 5
+#define RELAY_6 25 // GPIO25 for Relay 6
+#define RELAY_7 33 // GPIO33 for Relay 7
+#define RELAY_8 32 // GPIO32 for Relay 8
 
+// Relay states
+bool relayStates[8] = {false, false, false, false, false, false, false, false};
+
+void setup()
+{
   // Initialize Serial Monitor
-  Serial.begin(921600);
+  Serial.begin(9600);
+
+  /* Initialize SD Card (commented out)
+  Serial.println("Initializing SD card...");
+  if (!SD.begin(SD_CS)) {
+    Serial.println("SD Card initialization failed!");
+    Serial.println("Check wiring and SD card format.");
+    //return;
+  }
+  Serial.println("SD Card initialized.");
+  */
+
+  /* Check if the SD card is present (commented out)
+  uint8_t cardType = SD.cardType();
+  if (cardType == CARD_NONE) {
+    Serial.println("No SD card attached.");
+    return;
+  }
+  */
+
+  /* Print SD card type (commented out)
+  Serial.print("SD Card Type: ");
+  if (cardType == CARD_MMC) {
+    Serial.println("MMC");
+  } else if (cardType == CARD_SD) {
+    Serial.println("SDSC");
+  } else if (cardType == CARD_SDHC) {
+    Serial.println("SDHC");
+  } else {
+    Serial.println("UNKNOWN");
+  }
+  */
+
+  /* Print SD card size (commented out)
+  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+  Serial.printf("SD Card Size: %llu MB\n", cardSize);
+  */
+
+  // Initialize Relay pins
+  pinMode(RELAY_1, OUTPUT);
+  pinMode(RELAY_2, OUTPUT);
+  pinMode(RELAY_3, OUTPUT);
+  pinMode(RELAY_4, OUTPUT);
+  pinMode(RELAY_5, OUTPUT);
+  pinMode(RELAY_6, OUTPUT);
+  pinMode(RELAY_7, OUTPUT);
+  pinMode(RELAY_8, OUTPUT);
+
+  // Turn off all relays initially
+  digitalWrite(RELAY_1, HIGH);
+  digitalWrite(RELAY_2, HIGH);
+  digitalWrite(RELAY_3, HIGH);
+  digitalWrite(RELAY_4, HIGH);
+  digitalWrite(RELAY_5, HIGH);
+  digitalWrite(RELAY_6, HIGH);
+  digitalWrite(RELAY_7, HIGH);
+  digitalWrite(RELAY_8, HIGH);
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
 
   // Serve the main page
-  server.on("/", HTTP_GET, []() {
-    server.send(200, "text/html", PAGE_MAIN);
-  });
+  server.on("/", HTTP_GET, []()
+            { server.send(200, "text/html", PAGE_MAIN); });
 
-  // Handle control requests for light and fan
-  server.on("/control", HTTP_GET, []() {
+  // Handle control requests for relays
+  server.on("/control", HTTP_GET, []()
+            {
     String device = server.arg("device");
     String state = server.arg("state");
-    //Control Logic
-    server.send(200, "text/html", PAGE_CONTROL);
-  });
+  
+    if (device.startsWith("relay")) {
+      int relayNumber = device.substring(5).toInt();
+      if (relayNumber >= 1 && relayNumber <= 8) {
+        if (state == "on") {
+          digitalWrite(RELAY_1 + relayNumber - 1, LOW); // Turn relay ON
+          relayStates[relayNumber - 1] = true;
+          Serial.printf("Relay %d turned ON\n", relayNumber);
+        } else if (state == "off") {
+          digitalWrite(RELAY_1 + relayNumber - 1, HIGH); // Turn relay OFF
+          relayStates[relayNumber - 1] = false;
+          Serial.printf("Relay %d turned OFF\n", relayNumber);
+        }
+        logRelayState(relayNumber, state);
+      }
+    }
+  
+    server.send(200, "text/html", PAGE_CONTROL); });
 
   // Start the server
   server.begin();
@@ -58,7 +137,33 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
-void loop() {
+void loop()
+{
   // Handle client requests
   server.handleClient();
+}
+
+void logRelayState(int relayNumber, String state)
+{
+  /* SD card logging (commented out)
+  File logFile = SD.open("/relay_log.txt", FILE_WRITE);
+  if (logFile) {
+    String logEntry = "Relay " + String(relayNumber) + " turned " + state + " at " + getTimeStamp();
+    logFile.println(logEntry);
+    logFile.close();
+    Serial.println(logEntry);
+  } else {
+    Serial.println("Failed to open log file!");
+  }
+  */
+  // Log to Serial Monitor instead
+  String logEntry = "Relay " + String(relayNumber) + " turned " + state + " at " + getTimeStamp();
+  Serial.println(logEntry);
+}
+
+String getTimeStamp()
+{
+  // Placeholder for actual time stamp logic
+  // You can use an RTC module or NTP to get the actual time
+  return "2023-10-01 12:00:00";
 }
