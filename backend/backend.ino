@@ -19,14 +19,14 @@ WebServer server(80);
 // #define SD_MISO 19    // GPIO19 for SD card MISO
 
 // Relay pins
-#define RELAY_1 13 // GPIO13 for Relay 1
-#define RELAY_2 12 // GPIO12 for Relay 2
-#define RELAY_3 14 // GPIO14 for Relay 3
-#define RELAY_4 27 // GPIO27 for Relay 4
-#define RELAY_5 26 // GPIO26 for Relay 5
-#define RELAY_6 25 // GPIO25 for Relay 6
-#define RELAY_7 33 // GPIO33 for Relay 7
-#define RELAY_8 32 // GPIO32 for Relay 8
+#define RELAY_1 21 // GPIO21 for Relay 1
+#define RELAY_2 22 // GPIO22 for Relay 2
+#define RELAY_3 23 // GPIO23 for Relay 3
+#define RELAY_4 25 // GPIO25 for Relay 4
+#define RELAY_5 2 // GPIO2 for Relay 5*
+#define RELAY_6 33 // GPIO33 for Relay 6*
+#define RELAY_7 27 // GPIO27 for Relay 7
+#define RELAY_8 26 // GPIO26 for Relay 8
 
 // Relay states
 bool relayStates[8] = {false, false, false, false, false, false, false, false};

@@ -328,57 +328,47 @@ const char PAGE_CONTROL[] PROGMEM = R"=====(
       All rights reserved.
     </footer>
     <script>
-      // Function to toggle lights
+    
       function toggleLight(lightNumber) {
   const lightCard = document.getElementById(`light-card-${lightNumber}`);
   const switchInput = document.getElementById(`switch${lightNumber}`);
   const status = lightCard.querySelector(".light-status");
 
-  // Determine the new state
   const isOn = switchInput.checked;
   const state = isOn ? "on" : "off";
 
-  // Send request to the server to toggle the relay
   fetch(`/control?device=relay${lightNumber}&state=${state}`)
     .then((response) => {
       if (response.ok) {
-        // Update UI
         lightCard.classList.toggle("on", isOn);
         status.textContent = `Status: ${isOn ? "On" : "Off"}`;
-        // Explicitly update the switch knob position
         switchInput.checked = isOn;
       } else {
         console.error("Failed to toggle relay");
-        // Revert the switch if the request fails
         switchInput.checked = !isOn;
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      // Revert the switch if there's an error
       switchInput.checked = !isOn;
     });
 }
 
-      // Function to expand preview
       function expandPreview(lightNumber) {
         const previewArea = document.querySelector(".preview-area");
         const previewImages = document.querySelectorAll(".preview-area img");
 
-        // Reset all images to default size
         previewImages.forEach((img) => {
           img.style.gridColumn = "";
           img.style.gridRow = "";
           img.style.height = "";
         });
 
-        // Expand the clicked image to 50vh
         const clickedImage = previewImages[lightNumber - 1];
         clickedImage.style.gridColumn = "1 / 3";
         clickedImage.style.gridRow = "1 / 3";
         clickedImage.style.height = "100vh";
 
-        // Adjust the remaining images to fill the grid
         previewImages.forEach((img, index) => {
           if (index + 1 !== lightNumber) {
             img.style.height = "30vh";
