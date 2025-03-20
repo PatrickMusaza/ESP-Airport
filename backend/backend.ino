@@ -14,10 +14,10 @@ const char *password = "wedishuk113$";
 WebServer server(80);
 
 // SD Card pins
-#define SD_CS 5       // GPIO5 for SD card CS
-#define SD_SCK 18     // GPIO18 for SD card SCK
-#define SD_MOSI 23    // GPIO23 for SD card MOSI
-#define SD_MISO 19    // GPIO19 for SD card MISO
+#define SD_CS 5    // GPIO5 for SD card CS
+#define SD_SCK 18  // GPIO18 for SD card SCK
+#define SD_MOSI 23 // GPIO23 for SD card MOSI
+#define SD_MISO 19 // GPIO19 for SD card MISO
 
 // Relay pins
 #define RELAY_1 21 // GPIO21 for Relay 1
@@ -32,6 +32,19 @@ WebServer server(80);
 // Relay states
 bool relayStates[8] = {false, false, false, false, false, false, false, false};
 
+// Function to recursively list files and directories
+void listFilesRecursively(File dir, String &output) {
+    while (File entry = dir.openNextFile()) {
+        if (entry.isDirectory()) {
+            output += "Directory: " + String(entry.name()) + "\n";
+            listFilesRecursively(entry, output); // Recursively list contents of the directory
+        } else {
+            output += "File: " + String(entry.name()) + " (" + entry.size() + " bytes)\n";
+        }
+        entry.close();
+    }
+}
+
 void setup()
 {
     // Initialize Serial Monitor
@@ -39,7 +52,8 @@ void setup()
 
     // Initialize SD Card
     Serial.println("Initializing SD card...");
-    if (!SD.begin(SD_CS)) {
+    if (!SD.begin(SD_CS))
+    {
         Serial.println("SD Card initialization failed!");
         Serial.println("Check wiring and SD card format.");
         return;
@@ -48,20 +62,28 @@ void setup()
 
     // Check if the SD card is present
     uint8_t cardType = SD.cardType();
-    if (cardType == CARD_NONE) {
+    if (cardType == CARD_NONE)
+    {
         Serial.println("No SD card attached.");
         return;
     }
 
     // Print SD card type
     Serial.print("SD Card Type: ");
-    if (cardType == CARD_MMC) {
+    if (cardType == CARD_MMC)
+    {
         Serial.println("MMC");
-    } else if (cardType == CARD_SD) {
+    }
+    else if (cardType == CARD_SD)
+    {
         Serial.println("SDSC");
-    } else if (cardType == CARD_SDHC) {
+    }
+    else if (cardType == CARD_SDHC)
+    {
         Serial.println("SDHC");
-    } else {
+    }
+    else
+    {
         Serial.println("UNKNOWN");
     }
 
@@ -106,9 +128,36 @@ void setup()
     server.on("/gallery", HTTP_GET, []()
               { server.send(200, "text/html", PAGE_GALLERY); });
 
+    // List images on the SD card
+    server.on("/list-images", HTTP_GET, []() {
+        File root = SD.open("/assets");
+        String imageList = "[";
+        bool firstImage = true;
+
+        if (!root) {
+            server.send(404, "application/json", "{\"error\": \"Directory not found\"}");
+            return;
+        }
+
+        while (File file = root.openNextFile()) {
+            const char *fileName = file.name();
+            if (!file.isDirectory() && (strstr(fileName, ".jpg") || strstr(fileName, ".jpeg"))) {
+                if (!firstImage) {
+                    imageList += ",";
+                }
+                imageList += "\"/assets/" + String(fileName) + "\"";
+                firstImage = false;
+            }
+        }
+        imageList += "]";
+        root.close();
+
+        server.send(200, "application/json", imageList);
+        Serial.println("List of images: " + imageList);
+    });
+
     // Serve images from the SD card
-    server.on("/image", HTTP_GET, []()
-              {
+    server.on("/image", HTTP_GET, []() {
         String imagePath = server.arg("path");
         if (SD.exists(imagePath)) {
             File file = SD.open(imagePath, FILE_READ);
@@ -120,22 +169,18 @@ void setup()
             }
         } else {
             server.send(404, "text/plain", "Image not found");
-        } });
-
-    // List images on the SD card
-    server.on("/list-images", HTTP_GET, []()
-              {
-        File root = SD.open("/");
-        String imageList = "[";
-        while (File file = root.openNextFile()) {
-            const char *fileName = file.name();
-            if (!file.isDirectory() && (strstr(fileName, ".jpg") || strstr(fileName, ".jpeg"))) {
-                imageList += "\"" + String(fileName) + "\",";
-            }
         }
-        imageList.remove(imageList.length() - 1); // Remove trailing comma
-        imageList += "]";
-        server.send(200, "application/json", imageList); });
+    });
+
+    // List all directories and files on the SD card
+    server.on("/list-all", HTTP_GET, []() {
+        File root = SD.open("/assets");
+        String output = "SD Card Contents:\n";
+        listFilesRecursively(root, output);
+        root.close();
+        server.send(200, "text/plain", output);
+        Serial.println(output);
+    });
 
     // Handle control requests for relays
     server.on("/control", HTTP_GET, []()
@@ -178,12 +223,15 @@ void loop()
 void logRelayState(int relayNumber, String state)
 {
     File logFile = SD.open("/relay_log.txt", FILE_WRITE);
-    if (logFile) {
+    if (logFile)
+    {
         String logEntry = "Relay " + String(relayNumber) + " turned " + state + " at " + getTimeStamp();
         logFile.println(logEntry);
         logFile.close();
         Serial.println(logEntry);
-    } else {
+    }
+    else
+    {
         Serial.println("Failed to open log file!");
     }
 }
