@@ -3,9 +3,9 @@
 #include <SPI.h>
 #include <WebServer.h>
 
-// Network credentials
-const char *ssid = "HLT B";
-const char *password = "wedishuk113$";
+// Access Point credentials
+const char *apSSID = "ESP32-Airport-Control";  // SSID of the access point
+const char *apPassword = "12345678";           // Password for the access point
 
 // SD Card pins
 #define SD_SCK 18   // GPIO18 for SD card SCK
@@ -18,8 +18,8 @@ const char *password = "wedishuk113$";
 #define RELAY_2 22  // GPIO22 for Relay 2
 #define RELAY_3 23  // GPIO23 for Relay 3
 #define RELAY_4 25  // GPIO25 for Relay 4
-#define RELAY_5 2   // GPIO2 for Relay 5*
-#define RELAY_6 33  // GPIO33 for Relay 6*
+#define RELAY_5 2   // GPIO2 for Relay 5
+#define RELAY_6 33  // GPIO33 for Relay 6
 #define RELAY_7 27  // GPIO27 for Relay 7
 #define RELAY_8 26  // GPIO26 for Relay 8
 
@@ -63,14 +63,15 @@ void setup() {
   }
   Serial.println("SD Card Mounted Successfully");
 
-  // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected to WiFi");
-  Serial.println(WiFi.localIP());
+  // Start Access Point
+  WiFi.softAP(apSSID, apPassword);
+  Serial.println("Access Point Started");
+  Serial.print("SSID: ");
+  Serial.println(apSSID);
+  Serial.print("Password: ");
+  Serial.println(apPassword);
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.softAPIP());
 
   // Route for root / web page
   server.on("/", HTTP_GET, []() {
@@ -113,6 +114,26 @@ void setup() {
     while (file.available()) {
       content += String((char)file.read());
     }
+    
+    String device = server.arg("device");
+    String state = server.arg("state");
+
+    if (device.startsWith("relay")) {
+      int relayNumber = device.substring(5).toInt();
+      if (relayNumber >= 1 && relayNumber <= 8) {
+        if (state == "on") {
+          digitalWrite(RELAY_1 + relayNumber - 1, LOW);  // Turn relay ON
+          relayStates[relayNumber - 1] = true;
+          Serial.printf("Relay %d turned ON\n", relayNumber);
+        } else if (state == "off") {
+          digitalWrite(RELAY_1 + relayNumber - 1, HIGH);  // Turn relay OFF
+          relayStates[relayNumber - 1] = false;
+          Serial.printf("Relay %d turned OFF\n", relayNumber);
+        }
+        logRelayState(relayNumber, state);  // Log the relay state change
+      }
+    }
+
     file.close();
     server.send(200, "text/html", content);
   });
@@ -139,6 +160,21 @@ void setup() {
     }
 
     server.send(200, "text/plain", "OK");
+  });
+
+  // Route to read log file
+  server.on("/logs", HTTP_GET, []() {
+    File logFile = SD.open("/log.txt");
+    if (!logFile) {
+      server.send(404, "text/plain", "Log file not found");
+      return;
+    }
+    String logContent;
+    while (logFile.available()) {
+      logContent += String((char)logFile.read());
+    }
+    logFile.close();
+    server.send(200, "text/plain", logContent);
   });
 
   // Route for serving static files (e.g., images, CSS, JS)
