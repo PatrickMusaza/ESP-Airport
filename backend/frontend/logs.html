@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airport of Ethiopia – Airport de Ethiopia</title>
+    <link
+      rel="icon"
+      href="assets/cropped-LOGOS_LOGO-Aeroportos_de-Mocambique-192x192.png"
+      type="image/png"
+    />
+    <style>
+      /* General Styles */
+      body {
+        margin: 0;
+        font-family: "MetricHPE", "Trebuchet MS", "Lucida Sans Unicode",
+          "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+        background: linear-gradient(15deg, rgb(2, 21, 67), #0a192f);
+      }
+
+      /* Navigation Bar */
+      #navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: background 0.3s ease;
+      }
+
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .nav-logo-1 {
+        width: 300px;
+        height: 80px;
+      }
+
+      .nav-logo-2 {
+        width: 150px;
+        height: 80px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 40px;
+        font-size: 2em;
+        text-transform: uppercase;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #0624b6;
+      }
+
+      /* Hamburger Menu */
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        margin-right: 30px;
+      }
+
+      .hamburger span {
+        width: 50px;
+        height: 4px;
+        background: #fff;
+        margin: 4px 10px;
+        transition: 0.3s;
+        border-radius: 10px;
+      }
+
+      .hamburger.close span:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 12px);
+      }
+
+      .hamburger.close span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.close span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -12px);
+      }
+
+      /* Logs Section */
+      #logs-section {
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #222;
+        color: #fff;
+        max-width: 1200px;
+        border-radius: 10px;
+        margin-top: 100px;
+      }
+
+      #logs-section h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 15px;
+      }
+
+      #logs-section pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background-color: #333;
+        padding: 25px;
+        border-radius: 10px;
+        font-size: 1rem;
+      }
+
+      /* Footer Styles */
+      footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        text-align: center;
+        padding: 10px 0;
+        font-size: 1.2em;
+        font-weight: 400;
+      }
+
+      footer a {
+        color: #073e91;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      footer a:hover {
+        color: #fff;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 768px) {
+        #dynamic-content h1 {
+          margin-top: 50px;
+          margin-bottom: 50px;
+          font-size: 1rem;
+        }
+
+        header h1 {
+          margin-top: 50px;
+          font-size: 1rem;
+        }
+
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          position: absolute;
+          top: 80px;
+          left: 0;
+          width: 100%;
+          height: calc(100vh - 100px);
+          border-radius: 30px 30px 0 0;
+          background: rgba(77, 178, 245, 0.9);
+          text-align: center;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .hamburger {
+          display: flex;
+        }
+
+        footer {
+          font-size: 0.64em;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+      <div class="nav-container">
+        <img
+          src="assets/cropped-Animated-Logo-500x500-px-5-removebg-preview.png"
+          alt="Logo 1"
+          class="nav-logo-1"
+        />
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/control">Control</a></li>
+          <li><a href="/gallery">Gallery</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="main-content">
+      <!-- Logs Section -->
+      <section id="logs-section">
+        <h2>System Logs</h2>
+        <pre id="logs-placeholder">Log data will appear here...</pre>
+      </section>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+      &copy; 2025 Airport Control Panel | Developed & Powered by
+      <a href="https://tech.happylight.rw/">Happy Light Tech Ltd</a> | All
+      rights reserved.
+    </footer>
+
+    <script>
+      // Carousel and other scripts...
+    </script>
+  </body>
+</html>
